@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: geth
+  namespace: community-node
+spec:
+  selector:
+    matchLabels:
+      app: geth
+  serviceName: geth
+  template:
+    metadata:
+      labels:
+        app: geth
+    spec:
+      containers:
+        - name: geth
+          image: ethereum/client-go
+          ports:
+            - containerPort: 8545
+            - containerPort: 8546
+            - containerPort: 8551
+            - { containerPort: 30303, protocol: TCP }
+            - { containerPort: 30303, protocol: UDP }
+          env:
+            - name: GETH_PORT
+              value: "30303"
+            - name: GETH_AUTHRPC_PORT
+              value: "8551"
+            - name: GETH_AUTHRPC_ADDR
+              value: "0.0.0.0"
+            - name: GETH_AUTHRPC_JWTSECRET
+              value: "/jwt/jwt.hex"
+            - name: GETH_AUTHRPC_VHOSTS
+              value: "*"
+            - name: GETH_HTTP
+              value: "true"
+            - name: GETH_HTTP_ADDR
+              value: "0.0.0.0"
+            - name: GETH_HTTP_API
+              value: "eth,net,web3"
+            - name: GETH_HTTP_CORSDOMAIN
+              value: "*"
+            - name: GETH_HTTP_VHOSTS
+              value: "*"
+          resources:
+            requests:
+              memory: 2G
+              cpu: 1000m
+            limits:
+              memory: 8G
+              cpu: 8000m
+          readinessProbe:
+            tcpSocket:
+              port: 8545
+          livenessProbe:
+            tcpSocket:
+              port: 8545
+          startupProbe:
+            failureThreshold: 60
+            tcpSocket:
+              port: 8545
+            periodSeconds: 60
+          volumeMounts:
+            - name: chaindata
+              mountPath: /root/.ethereum
+            - name: jwt
+              mountPath: /jwt
+      volumes:
+        - name: chaindata
+          persistentVolumeClaim:
+            claimName: geth-chaindata
+        - configMap:
+            name: geth-jwt
+          name: jwt

@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: prysm-service
+  namespace: community-node
+spec:
+  ports:
+    - protocol: TCP
+      targetPort: 8545
+      port: 8545
+      name: http
+    - protocol: TCP
+      targetPort: 8546
+      port: 8546
+      name: websocket
+    - protocol: TCP
+      targetPort: 8551
+      port: 8551
+      name: authrpc
+  selector:
+    app: geth

@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata: 
+  name: geth-chaindata
+spec:
+  storageClassName: geth-chaindata
+  capacity:
+    storage: 2000Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath: 
+    path: "/mnt/geth-chaindata"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: geth-chaindata
+  namespace: community-node
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: geth-chaindata
+  resources:
+    limits:
+      storage: 2000Gi 
+    requests: 
+      storage: 2000Gi 
